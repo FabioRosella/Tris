@@ -1,5 +1,6 @@
 #include<stdio.h>
 #include<stdlib.h>
+#include "strategy.h"
 
 //Definizione per i tipi della matrice 
 
@@ -7,6 +8,11 @@
 #define true 'X'
 #define false 'O'
 #define empty ' '
+
+#define strategy int
+#define easy 0
+#define medium 1
+#define hard 2
 
 //Definizione clear per diversi os
 
@@ -24,17 +30,20 @@ struct giocatore{
     bool segno;
 };
 
-//Dichiarazione Procedure
+//Dichiarazione Prototipi
 
 void PrintGrid(bool grid[3][3]);
 void InitGrid(bool grid[3][3]);
 void StartGame(bool grid[3][3],struct giocatore * player1,struct giocatore * player2);
+void StartGameCpu(bool grid[3][3],struct giocatore * player1,struct giocatore * player2,strategy s);
 int InsertInGrid(bool grid[3][3],bool symbol);
 bool CheckWin(bool grid[3][3],int insertcell);
 void Menu();
 void Menu1vs1();
+void Menu1vsCpu();
 void InsertDatPlayer(struct giocatore * player,bool sign);
 void PrintPlayer(struct giocatore player1,struct giocatore player2);
+void ClearBuffer();
 
 //MAIN -- Gioco del tris semplice con possibilità di segnare il punteggio e giocare più partite
 
@@ -43,6 +52,7 @@ int main(){
     bool grid[3][3];
     char response='0';
     int cbuffer;
+    char respo='0';
 
     do{
         Menu();
@@ -50,13 +60,12 @@ int main(){
 
         switch(response){
             case '1':{
-                char respo='0';
                 //Inserisci i dati per i giocatori
                 struct giocatore player1;
                 struct giocatore player2;
                 InsertDatPlayer(&player1,true);
                 InsertDatPlayer(&player2,false);
-                while((cbuffer = getchar()) != '\n' && cbuffer != EOF);
+                ClearBuffer();
                 int turn=1;
                 do{
                     Menu1vs1();
@@ -72,13 +81,13 @@ int main(){
                             else
                                 StartGame(grid,&player2,&player1);
 
-                            while((cbuffer = getchar()) != '\n' && cbuffer != EOF);
+                            ClearBuffer();
                             turn ++;
                             break;
                         }
                         case '2':{
                             PrintPlayer(player1,player2);
-                            while((cbuffer = getchar()) != '\n' && cbuffer != EOF);
+                            ClearBuffer();
                             break;
                         }
                         case '3':
@@ -86,13 +95,63 @@ int main(){
                         default:{
                             printf("Hai inserito un valore non valido\nPremere invio per continuare: \n");
                             scanf("%c",&respo);
-                            while((cbuffer = getchar()) != '\n' && cbuffer != EOF);
+                            ClearBuffer();
                             break;
                         }
                     }
                 }while(respo != '3');
 
-                while((cbuffer = getchar()) != '\n' && cbuffer != EOF);
+                ClearBuffer();
+                break;
+            }
+            case '2':
+            {
+                struct giocatore player1;
+                InsertDatPlayer(&player1,true);
+                struct giocatore cpu;
+                cpu.name[0] = 'C';
+                cpu.name[1] = 'p';
+                cpu.name[2] = 'u';
+                cpu.name[3] = '\0';
+                cpu.punteggio = 0;
+                cpu.segno = false;
+                int turn = 1;
+                ClearBuffer();
+                do{
+                    Menu1vsCpu();
+                    scanf("%c", &respo);
+
+                    switch(respo){
+                        case 1:{
+                            InitGrid(grid);
+                            PrintGrid(grid);
+
+                            if(turn % 2 == 1)
+                                StartGameCpu(grid,&player1,&cpu,easy);
+                            else
+                                StartGameCpu(grid,&cpu,&player1,easy);
+
+                            ClearBuffer();
+                            turn ++;
+
+                            break;
+                        }
+                        case '2':{
+                            PrintPlayer(player1,cpu);
+                            ClearBuffer();
+                            break;
+                        }
+                        case '3':
+                            break;
+                        default:{
+                            printf("Hai inserito un valore non valido\nPremere invio per continuare: \n");
+                            scanf("%c",&respo);
+                            ClearBuffer();
+                            break;
+                        }
+                    }
+                }while(respo != '3');
+                ClearBuffer();
                 break;
             }
             case '3':
@@ -100,7 +159,7 @@ int main(){
             default:{
                 printf("Hai inserito un valore non valido\nPremere invio per continuare: \n");
                 scanf("%c",&response);
-                while((cbuffer = getchar()) != '\n' && cbuffer != EOF);
+                ClearBuffer();
                 break;
             }
         }
@@ -147,7 +206,7 @@ void InitGrid(bool grid[3][3]){
     }
 }
 
-// Funzione che starta la partita 
+// Funzione che starta la partita nella versione 1 vs 1
 
 void StartGame(bool grid[3][3],struct giocatore * player1,struct giocatore * player2){
     int exit=0;
@@ -174,7 +233,7 @@ void StartGame(bool grid[3][3],struct giocatore * player1,struct giocatore * pla
             result = CheckWin(grid,insertcell);
             if(result == (*player1).segno)
             {
-                while((cbuffer = getchar()) != '\n' && cbuffer != EOF);
+                ClearBuffer();
                 printf("\nVITTORIA : %s Vince\nPremere un pulsante per continuare: \n",(*player1).name);
                 (*player1).punteggio ++;
                 scanf("%c",&respos);
@@ -182,14 +241,14 @@ void StartGame(bool grid[3][3],struct giocatore * player1,struct giocatore * pla
             }
             if(result == (*player2).segno)
             {
-                while((cbuffer = getchar()) != '\n' && cbuffer != EOF);
+                ClearBuffer();
                 printf("\nVITTORIA : %s Vince\nPremere un pulsante per continuare: \n", (*player2).name);
                 (*player2).punteggio ++;
                 scanf("%c",&respos);
                 return;
             }
             if(count == 10){
-                while((cbuffer = getchar()) != '\n' && cbuffer != EOF);
+                ClearBuffer();
                 printf("PAREGGIO\nPremere un pulsante per continuare: \n");
                 scanf("%c",&respos);
                 return;
@@ -198,7 +257,66 @@ void StartGame(bool grid[3][3],struct giocatore * player1,struct giocatore * pla
     }
 }
 
-//Inserisce un segno nella griglia del tris
+// Funzione che starta la partita nella versione 1 vs CPU
+
+void StartGameCpu(bool grid[3][3],struct giocatore * player1,struct giocatore * player2,strategy s){
+    int exit=0;
+    int count=1;
+    int insertcell=0;
+    bool result=empty;
+    char respos;
+    int cbuffer;
+
+    struct nodostrategyeasy * head = NULL;
+
+    while(exit==0){
+        if(count % 2 == 0)
+        {
+            printf("Turno di %s\n",(*player2).name);
+            if((*player2).name[0] == 'C' && (*player2).name[1] == 'p' && (*player2).name[2] == 'u')
+                insertcell = 0;
+            else
+                insertcell = InsertInGrid(grid,(*player2).segno);
+        }
+        else   
+        {
+            printf("Turno di %s\n",(*player1).name);
+            if((*player1).name[0] == 'C' && (*player1).name[1] == 'p' && (*player1).name[2] == 'u')
+                insertcell = 0;
+            else
+                insertcell = InsertInGrid(grid,(*player1).segno);
+        }
+        PrintGrid(grid);
+        count ++;
+        if(count > 5){
+            result = CheckWin(grid,insertcell);
+            if(result == (*player1).segno)
+            {
+                ClearBuffer();
+                printf("\nVITTORIA : %s Vince\nPremere un pulsante per continuare: \n",(*player1).name);
+                (*player1).punteggio ++;
+                scanf("%c",&respos);
+                return;
+            }
+            if(result == (*player2).segno)
+            {
+                ClearBuffer();
+                printf("\nVITTORIA : %s Vince\nPremere un pulsante per continuare: \n", (*player2).name);
+                (*player2).punteggio ++;
+                scanf("%c",&respos);
+                return;
+            }
+            if(count == 10){
+                ClearBuffer();
+                printf("PAREGGIO\nPremere un pulsante per continuare: \n");
+                scanf("%c",&respos);
+                return;
+            }
+        }
+    }
+}
+
+//Inserisce un segno nella griglia del tris scelto da un giocatore
 
 int InsertInGrid(bool grid[3][3],bool symbol){
     int cell=1;
@@ -214,7 +332,7 @@ int InsertInGrid(bool grid[3][3],bool symbol){
                 printf("Errore: devi inserire un numero corretto per giocare! \n");
         }
 
-        while((cbuffer = getchar()) != '\n' && cbuffer != EOF);
+        ClearBuffer();
 
         printf("Inserisci la cella (da 1 a 9 in ordine sx verso dx) : \n");
         scanf("%c:",&c);
@@ -310,4 +428,23 @@ void PrintPlayer(struct giocatore player1,struct giocatore player2){
 
     printf("Premere un pulsante per continuare: \n");
     scanf("%c",&respos);
+}
+
+//Stampa il sottomenu per giocare 1 vs Cpu
+
+void Menu1vsCpu(){
+
+    CLEAR();
+    printf("Benvenuti nella sezione 1 vs CPU !!\n\n");
+    printf("1 - Inizia una nuova partita\n");
+    printf("2 - Stampa le statistiche dei giocatori \n");
+    printf("3 - Torna indietro e termina lo scontro \n\n");
+    printf("Seleziona un operazione utilizzando il numero\n");
+}
+
+//Puliscce il buffer di input 
+
+void ClearBuffer(){
+    char cbuffer;
+    while((cbuffer = getchar()) != '\n' && cbuffer != EOF);
 }
