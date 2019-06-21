@@ -268,7 +268,7 @@ void StartGameCpu(bool grid[3][3],struct giocatore * player1,struct giocatore * 
     char respos;
     int cbuffer;
 
-    struct strategyeasy strat = InizializeEasy();
+    struct strategylist strat = InizializeEasy();
 
     while(exit==0){
         if(count % 2 == 0)

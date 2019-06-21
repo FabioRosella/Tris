@@ -6,30 +6,30 @@
 
 //Cella libera
 
-struct nodostrategyeasy{
+struct nodostrategy{
     int cell;
-    struct nodostrategyeasy * next; 
+    struct nodostrategy * next; 
 };
 
-struct strategyeasy{
-    struct nodostrategyeasy * head;
+struct strategylist{
+    struct nodostrategy * head;
     int elements;      //numero celle rimanenti libere
-    struct nodostrategyeasy * tail;
+    struct nodostrategy * tail;
 };
 
 //Inizializza la strategia easy
 
-struct strategyeasy InizializeEasy(){
+struct strategylist InizializeEasy(){
 
-    struct strategyeasy strategy;
+    struct strategylist strategy;
     int i=0;
-    strategy.head = malloc(sizeof(struct nodostrategyeasy));
+    strategy.head = malloc(sizeof(struct nodostrategy));
     strategy.tail = strategy.head;
     strategy.tail->next = NULL;
     strategy.tail->cell = 1;
 
     for(i=2; i<=9; i++){
-        strategy.tail->next = malloc(sizeof(struct nodostrategyeasy));
+        strategy.tail->next = malloc(sizeof(struct nodostrategy));
         strategy.tail = strategy.tail->next;
         strategy.tail->next = NULL;
         strategy.tail->cell = i;
@@ -40,10 +40,10 @@ struct strategyeasy InizializeEasy(){
 
 //Elimina un nodo dalla lista strategyeasy
 
-void DeleteNode(struct strategyeasy * strategy,int key){
+void DeleteNode(struct strategylist * strategy,int key){
 
-    struct nodostrategyeasy * node = strategy->head;
-    struct nodostrategyeasy * freenode = NULL;
+    struct nodostrategy * node = strategy->head;
+    struct nodostrategy * freenode = NULL;
 
     if(strategy->head->cell == key)
     {
