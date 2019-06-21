@@ -37,6 +37,7 @@ void InitGrid(bool grid[3][3]);
 void StartGame(bool grid[3][3],struct giocatore * player1,struct giocatore * player2);
 void StartGameCpu(bool grid[3][3],struct giocatore * player1,struct giocatore * player2,strategy s);
 int InsertInGrid(bool grid[3][3],bool symbol);
+int InsertInGridCpu(bool grid[3][3],bool symbol,int cell);
 bool CheckWin(bool grid[3][3],int insertcell);
 void Menu();
 void Menu1vs1();
@@ -122,7 +123,7 @@ int main(){
                     scanf("%c", &respo);
 
                     switch(respo){
-                        case 1:{
+                        case '1':{
                             InitGrid(grid);
                             PrintGrid(grid);
 
@@ -267,24 +268,32 @@ void StartGameCpu(bool grid[3][3],struct giocatore * player1,struct giocatore * 
     char respos;
     int cbuffer;
 
-    struct nodostrategyeasy * head = NULL;
+    struct strategyeasy strat = InizializeEasy();
 
     while(exit==0){
         if(count % 2 == 0)
         {
             printf("Turno di %s\n",(*player2).name);
-            if((*player2).name[0] == 'C' && (*player2).name[1] == 'p' && (*player2).name[2] == 'u')
-                insertcell = 0;
-            else
+            if((*player2).name[0] == 'C' && (*player2).name[1] == 'p' && (*player2).name[2] == 'u'){
+                insertcell = InsertInGridCpu(grid,(*player2).segno,strat.head->cell);
+                DeleteNode(&strat,strat.head->cell);
+            }
+            else{
                 insertcell = InsertInGrid(grid,(*player2).segno);
+                DeleteNode(&strat,insertcell);
+            }
         }
         else   
         {
             printf("Turno di %s\n",(*player1).name);
-            if((*player1).name[0] == 'C' && (*player1).name[1] == 'p' && (*player1).name[2] == 'u')
-                insertcell = 0;
-            else
+            if((*player1).name[0] == 'C' && (*player1).name[1] == 'p' && (*player1).name[2] == 'u'){
+                insertcell = InsertInGridCpu(grid,(*player1).segno,strat.head->cell);
+                DeleteNode(&strat,strat.head->cell);
+            }
+            else{
                 insertcell = InsertInGrid(grid,(*player1).segno);
+                DeleteNode(&strat,insertcell);
+            }
         }
         PrintGrid(grid);
         count ++;
@@ -447,4 +456,13 @@ void Menu1vsCpu(){
 void ClearBuffer(){
     char cbuffer;
     while((cbuffer = getchar()) != '\n' && cbuffer != EOF);
+}
+
+//Inserisce nella griglia la mossa effettuata dalla cpu
+
+int InsertInGridCpu(bool grid[3][3],bool symbol,int cell){
+
+    grid[(cell-1)/3][(cell-1)%3] = symbol;
+
+    return cell;
 }
