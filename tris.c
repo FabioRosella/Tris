@@ -45,6 +45,7 @@ void Menu1vsCpu();
 void InsertDatPlayer(struct giocatore * player,bool sign);
 void PrintPlayer(struct giocatore player1,struct giocatore player2);
 void ClearBuffer();
+int EasyStrategy(struct strategylist strat);
 
 //MAIN -- Gioco del tris semplice con possibilità di segnare il punteggio e giocare più partite
 
@@ -267,16 +268,16 @@ void StartGameCpu(bool grid[3][3],struct giocatore * player1,struct giocatore * 
     bool result=empty;
     char respos;
     int cbuffer;
-
-    struct strategylist strat = InizializeEasy();
+    struct strategylist strat = Inizialize();
 
     while(exit==0){
         if(count % 2 == 0)
         {
             printf("Turno di %s\n",(*player2).name);
             if((*player2).name[0] == 'C' && (*player2).name[1] == 'p' && (*player2).name[2] == 'u'){
-                insertcell = InsertInGridCpu(grid,(*player2).segno,strat.head->cell);
-                DeleteNode(&strat,strat.head->cell);
+                insertcell = EasyStrategy(strat);
+                insertcell = InsertInGridCpu(grid,(*player2).segno,insertcell);
+                DeleteNode(&strat,insertcell);
             }
             else{
                 insertcell = InsertInGrid(grid,(*player2).segno);
@@ -287,8 +288,9 @@ void StartGameCpu(bool grid[3][3],struct giocatore * player1,struct giocatore * 
         {
             printf("Turno di %s\n",(*player1).name);
             if((*player1).name[0] == 'C' && (*player1).name[1] == 'p' && (*player1).name[2] == 'u'){
-                insertcell = InsertInGridCpu(grid,(*player1).segno,strat.head->cell);
-                DeleteNode(&strat,strat.head->cell);
+                insertcell = EasyStrategy(strat);
+                insertcell = InsertInGridCpu(grid,(*player1).segno,insertcell);
+                DeleteNode(&strat,insertcell);
             }
             else{
                 insertcell = InsertInGrid(grid,(*player1).segno);
@@ -465,4 +467,19 @@ int InsertInGridCpu(bool grid[3][3],bool symbol,int cell){
     grid[(cell-1)/3][(cell-1)%3] = symbol;
 
     return cell;
+}
+
+//Seleziona la cella vuote dove la cpu vuole compiere la mossa, mossa facile
+
+int EasyStrategy(struct strategylist strat){
+    int i=0;
+    int number = (rand() % (strat.elements)) + 1;
+    printf("%d\n",strat.elements);
+    struct nodostrategy * node = strat.head;
+
+    for(i=1; i<number; i++){
+        node = node->next;
+    }
+
+    return node->cell;
 }

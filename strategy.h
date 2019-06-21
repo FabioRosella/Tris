@@ -19,7 +19,7 @@ struct strategylist{
 
 //Inizializza la strategia easy
 
-struct strategylist InizializeEasy(){
+struct strategylist Inizialize(){
 
     struct strategylist strategy;
     int i=0;
@@ -34,7 +34,7 @@ struct strategylist InizializeEasy(){
         strategy.tail->next = NULL;
         strategy.tail->cell = i;
     }
-
+    strategy.elements = 9;
     return strategy;
 }
 
